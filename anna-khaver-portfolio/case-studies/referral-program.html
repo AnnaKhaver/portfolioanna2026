@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Case study: Referral program redesign at Pipedrive.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2790%27%3E%E2%9C%B1%3C/text%3E%3C/svg%3E">
+<title>Referral program redesign – Anna Khaver</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#FFFFFF; --ink:#111111; --muted:#666666; --line:#111111; --card:#FFFFFF;
+  --soft:rgba(17,17,17,.06); --hair:rgba(17,17,17,.16); --track:#E6E6E2; --ctrl:#C9C9C5;
+  --sans:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  color-scheme:light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#161615; --ink:#F2F2EF; --muted:#A5A5A0; --line:#F2F2EF; --card:#1F1F1E;
+    --soft:rgba(242,242,239,.08); --hair:rgba(242,242,239,.2); --track:#2B2B29; --ctrl:#5A5A56;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#161615; --ink:#F2F2EF; --muted:#A5A5A0; --line:#F2F2EF; --card:#1F1F1E;
+  --soft:rgba(242,242,239,.08); --hair:rgba(242,242,239,.2); --track:#2B2B29; --ctrl:#5A5A56;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .ink{filter:invert(1)}}
+:root[data-theme="dark"] .ink{filter:invert(1)}
+*,*::before,*::after{box-sizing:border-box}
+html{height:100%;scroll-behavior:smooth;scroll-padding-top:calc(env(safe-area-inset-top,0px) + 64px)}
+body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:60;background:var(--bg)}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+
+/* nav */
+.nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid var(--soft)}
+.nav .wrap{display:flex;align-items:center;justify-content:space-between;height:56px;gap:16px}
+.back{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;text-decoration:none;white-space:nowrap}
+.back svg{width:14px;height:14px;transition:transform .25s}
+.back:hover svg{transform:translateX(-3px)}
+.nav ul{display:flex;gap:2px;margin:0;padding:0;list-style:none;overflow-x:auto;scrollbar-width:none}
+.nav ul::-webkit-scrollbar{display:none}
+.nav ul a{display:block;padding:6px 10px;font-size:13px;font-weight:500;text-decoration:none;color:var(--muted);transition:color .2s;position:relative;white-space:nowrap}
+.nav ul a:hover,.nav ul a.on{color:var(--ink)}
+.nav ul a.on::after{content:"";position:absolute;left:10px;top:50%;width:6px;height:6px;border-radius:50%;background:var(--ink);transform:translate(-14px,-50%)}
+@media (max-width:640px){.back span{display:none}}
+
+/* hero */
+.hero{padding:clamp(56px,9vw,112px) 0 0}
+.eyebrow{display:flex;align-items:center;gap:12px;margin:0 0 22px;font-size:14px;color:var(--muted)}
+.eyebrow img{height:30px;width:auto;display:block}
+.hero h1{margin:0;font-size:clamp(40px,7.4vw,96px);line-height:1;font-weight:700;letter-spacing:-.04em;max-width:11em}
+.lede{margin:clamp(24px,3vw,36px) 0 0;font-size:clamp(18px,1.8vw,22px);line-height:1.5;max-width:34em}
+.lede+.lede{margin-top:14px;color:var(--muted)}
+.meta{display:grid;grid-template-columns:repeat(4,1fr);gap:20px 28px;margin:clamp(36px,5vw,64px) 0 0;padding:22px 0 0;border-top:1px solid var(--hair)}
+.meta dt{font-size:13px;color:var(--muted);margin:0 0 2px}
+.meta dd{margin:0;font-size:15px}
+@media (max-width:760px){.meta{grid-template-columns:1fr 1fr}}
+
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:clamp(40px,5vw,72px)}
+@media (max-width:860px){.steps{grid-template-columns:1fr 1fr}}
+a.step{display:block;border:1px solid var(--line);padding:18px 18px 20px;text-decoration:none;transition:background-color .2s,color .2s}
+a.step .l{display:block;font-size:44px;line-height:1;font-weight:700;letter-spacing:-.03em;margin-bottom:22px}
+a.step .t{display:block;font-weight:600;font-size:16px}
+a.step .s{display:block;font-size:14px;color:var(--muted);transition:color .2s}
+a.step:hover{background:var(--ink);color:var(--bg)}
+a.step:hover .s{color:inherit;opacity:.75}
+
+/* sections */
+section.block{padding:clamp(72px,10vw,128px) 0 0}
+.sec-title{display:flex;align-items:center;gap:14px;margin:0 0 clamp(20px,3vw,32px)}
+.sec-title h2{margin:0;font-size:clamp(28px,4vw,44px);line-height:1.1;font-weight:700;letter-spacing:-.02em}
+.sec-title img{height:36px;width:auto;flex:none;display:block}
+.sub{display:grid;grid-template-columns:5fr 7fr;gap:clamp(28px,6vw,88px);padding:clamp(36px,5vw,64px) 0;border-top:1px solid var(--hair)}
+.sub:last-child{padding-bottom:0}
+@media (max-width:860px){.sub{grid-template-columns:1fr}}
+.k{margin:0 0 10px;font-size:13px;color:var(--muted)}
+.sub h3{margin:0;font-size:clamp(24px,3vw,34px);line-height:1.15;font-weight:700;letter-spacing:-.02em;max-width:14em}
+.body p{margin:0;font-size:clamp(16px,1.4vw,18px);line-height:1.6;max-width:34em}
+.body p+p{margin-top:14px}
+.src{margin-top:22px!important;font-size:12px!important;color:var(--muted);max-width:none!important}
+
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:30px 28px;margin:0 0 30px}
+.num{display:block;font-size:clamp(34px,4.4vw,54px);font-weight:700;letter-spacing:-.04em;line-height:1}
+.stat p{margin:10px 0 0;font-size:15px;color:var(--muted);max-width:19em;line-height:1.45}
+.stat p b{color:var(--ink);font-weight:600}
+.say{margin:0 0 26px!important;font-size:clamp(19px,2vw,24px)!important;line-height:1.35!important;font-weight:600;letter-spacing:-.01em;max-width:24em!important}
+
+.bars{margin:0 0 30px;display:grid;gap:10px}
+.bars .cap{font-size:13px;color:var(--muted);margin:0 0 2px}
+.bar{display:grid;grid-template-columns:130px 1fr 52px;align-items:center;gap:12px;font-size:14px}
+.bar .tr{height:10px;border-radius:999px;background:var(--track);overflow:hidden}
+.bar .tr i{display:block;height:100%;width:var(--w);border-radius:999px;background:var(--ctrl)}
+.bar.t .tr i{background:var(--ink)}
+.bar b{text-align:right;font-weight:600}
+@media (max-width:520px){.bar{grid-template-columns:96px 1fr 46px}}
+
+.tbl{width:100%;border-collapse:collapse;margin:0 0 26px;font-size:15px}
+.tbl th,.tbl td{text-align:left;vertical-align:top;padding:14px 0;border-top:1px solid var(--hair)}
+.tbl tr:last-child th,.tbl tr:last-child td{border-bottom:1px solid var(--hair)}
+.tbl th{width:34%;font-weight:500;color:var(--muted);font-size:14px;padding-right:16px}
+
+.cols{display:grid;grid-template-columns:repeat(3,1fr);gap:32px 28px;margin-bottom:28px}
+.cols.two{grid-template-columns:repeat(2,1fr)}
+@media (max-width:760px){.cols,.cols.two{grid-template-columns:1fr}}
+.col h4{margin:0 0 16px;font-size:clamp(20px,2.2vw,26px);font-weight:700;letter-spacing:-.01em;line-height:1.2}
+.col ul{margin:0;padding:0;list-style:none;display:grid;gap:12px}
+.col li{position:relative;padding-left:26px;font-size:15px;line-height:1.5}
+.col li .mk{position:absolute;left:0;top:.2em;width:16px;height:16px}
+.wide .sub{grid-template-columns:1fr}
+.wide .sub .head{max-width:40em}
+
+.decision{display:flex;align-items:center;gap:12px;margin:0 0 26px;font-size:clamp(18px,2vw,22px);font-weight:600;letter-spacing:-.01em}
+.decision::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--ink);flex:none}
+
+/* dot to star marker */
+.mk{--star:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20100%20100'%3E%3Cpath%20d='M47.9%2047.4Q68.5%2051.9%2086.5%2056.2'%20fill='none'%20stroke='%23000'%20stroke-width='8.2'%20stroke-linecap='round'/%3E%3Cpath%20d='M48.3%2050.2Q50.5%2072.2%2057.2%2093.4'%20fill='none'%20stroke='%23000'%20stroke-width='7.8'%20stroke-linecap='round'/%3E%3Cpath%20d='M52.6%2052.0Q46.7%2068.5%2036.9%2084.7'%20fill='none'%20stroke='%23000'%20stroke-width='9.4'%20stroke-linecap='round'/%3E%3Cpath%20d='M50.8%2051.4Q31.0%2052.3%2012.1%2049.9'%20fill='none'%20stroke='%23000'%20stroke-width='9.6'%20stroke-linecap='round'/%3E%3Cpath%20d='M51.0%2050.0Q40.1%2034.4%2028.2%2020.3'%20fill='none'%20stroke='%23000'%20stroke-width='7.5'%20stroke-linecap='round'/%3E%3Cpath%20d='M52.2%2050.3Q56.4%2031.9%2052.3%2013.2'%20fill='none'%20stroke='%23000'%20stroke-width='7.9'%20stroke-linecap='round'/%3E%3Cpath%20d='M52.1%2050.1Q71.0%2046.2%2088.5%2034.0'%20fill='none'%20stroke='%23000'%20stroke-width='8.2'%20stroke-linecap='round'/%3E%3C/svg%3E");position:relative;display:inline-block;width:18px;height:18px;flex:none}
+.mk i{position:absolute;left:50%;top:50%;display:block;transition:transform .45s cubic-bezier(.3,1.7,.5,1),opacity .2s}
+.mk .dot{width:6px;height:6px;margin:-3px 0 0 -3px;border-radius:50%;background:var(--ink)}
+.mk .star{width:16px;height:16px;margin:-8px 0 0 -8px;background:var(--ink);-webkit-mask:var(--star) center/contain no-repeat;mask:var(--star) center/contain no-repeat;transform:scale(0) rotate(-120deg);opacity:0}
+.col li:hover .mk .dot{transform:scale(0);opacity:0}
+.col li:hover .mk .star{transform:scale(1) rotate(20deg);opacity:1}
+
+
+/* screens */
+.shots{display:grid;gap:clamp(28px,4vw,48px);margin-top:8px}
+.shot{margin:0}
+.zoom{display:block;width:100%;padding:0;border:1px solid var(--hair);border-radius:6px;overflow:hidden;background:#fff;cursor:zoom-in;transition:border-color .2s,box-shadow .2s}
+.zoom:hover{border-color:var(--ink);box-shadow:0 12px 30px rgba(0,0,0,.12)}
+.zoom img{display:block;width:100%;height:auto}
+.shot figcaption{display:flex;gap:14px;margin-top:14px;max-width:42em}
+.shot .n{flex:none;width:26px;height:26px;border-radius:50%;border:1px solid var(--ink);display:grid;place-items:center;font-size:13px;font-weight:600;line-height:1}
+.shot figcaption p{margin:0;font-size:15px;line-height:1.5}
+.shot figcaption b{font-weight:600}
+dialog#lb{border:1px solid var(--line);background:var(--bg);color:var(--ink);padding:0;width:min(1500px,96vw);max-height:96svh;margin:auto;overflow:auto}
+dialog#lb::backdrop{background:rgba(17,17,17,.6)}
+dialog#lb img{display:block;width:100%;height:auto;background:#fff}
+dialog#lb .x{position:sticky;top:10px;float:right;margin:10px 10px -46px 0;z-index:2;width:34px;height:34px;display:grid;place-items:center;font-size:18px;line-height:1;background:var(--bg);color:var(--ink);border:1px solid var(--ink);cursor:pointer;transition:background-color .2s,color .2s}
+dialog#lb .x:hover{background:var(--ink);color:var(--bg)}
+
+.col p{margin:0;font-size:15px;line-height:1.5;color:var(--muted);max-width:26em}
+.shots.g2{grid-template-columns:repeat(auto-fit,minmax(min(100%,430px),1fr));align-items:start;gap:clamp(28px,4vw,44px) clamp(20px,3vw,36px)}
+.line{margin:0 0 26px!important;font-size:14px!important;color:var(--muted)}
+.line b{color:var(--ink);font-weight:600}
+.flow{list-style:none;margin:8px 0 0;padding:0;counter-reset:s;display:grid}
+.flow li{display:grid;grid-template-columns:30px 1fr;gap:20px;padding:0 0 32px;position:relative;counter-increment:s}
+.flow li::before{content:counter(s);width:30px;height:30px;border-radius:50%;border:1px solid var(--ink);display:grid;place-items:center;font-size:13px;font-weight:600;background:var(--bg);z-index:1}
+.flow li::after{content:"";position:absolute;left:15px;top:34px;bottom:4px;width:1px;background:var(--hair)}
+.flow li:last-child{padding-bottom:0}
+.flow li:last-child::after{display:none}
+.flow h4{margin:3px 0 6px;font-size:clamp(18px,2vw,22px);font-weight:700;letter-spacing:-.01em;line-height:1.25}
+.flow p{margin:0;font-size:15px;line-height:1.55;max-width:40em}
+.tag{display:inline-block;margin-top:10px;font-size:12px;padding:4px 11px;border:1px solid var(--hair);border-radius:999px;color:var(--muted)}
+.life{display:grid;gap:18px;margin:8px 0 34px}
+.life .row{display:grid;grid-template-columns:120px 1fr;gap:14px;align-items:center}
+.life .k2{font-size:13px;color:var(--muted)}
+.st{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.st span{font-size:13px;font-weight:500;padding:6px 14px;border-radius:999px;border:1px solid var(--ink);background:var(--card)}
+.st span.m{border-color:var(--hair);color:var(--muted)}
+.st i{font-style:normal;color:var(--muted);font-size:13px}
+@media (max-width:560px){.life .row{grid-template-columns:1fr;gap:6px}}
+.cite{margin:14px 0 0!important;font-size:14px!important;color:var(--muted)!important}
+.note{display:flex;gap:16px;align-items:flex-start;background:#FFF4D1;color:#111;border:1px solid rgba(17,17,17,.06);border-radius:10px;padding:18px 22px;margin:0 0 34px;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+.note .em{font-size:30px;line-height:1.1;flex:none}
+.note .q{margin:0 0 2px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#8a8a85}
+.note h4{margin:0 0 8px;font-size:17px;font-weight:700;line-height:1.3}
+.note ul{margin:0;padding-left:20px;font-weight:600;font-size:16px;line-height:1.5;display:grid;gap:2px}
+.shot.full{grid-column:1/-1}
+.tagb{display:inline-block;margin-right:8px;padding:2px 10px;border:1px solid var(--ink);border-radius:999px;font-size:12px;font-weight:600;color:var(--ink);vertical-align:middle}
+/* footer */
+.foot{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-top:clamp(72px,11vw,150px);padding-bottom:28px;font-size:13px;color:var(--muted)}
+.foot a{color:var(--ink);font-weight:500;font-size:15px;text-decoration:underline;text-decoration-thickness:1.5px;text-underline-offset:5px}
+.foot small{font-size:11px}
+
+@keyframes rise{from{opacity:0;translate:0 16px}to{opacity:1;translate:0 0}}
+.rv{animation:rise .7s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(var(--i,0)*85ms)}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation:none!important;transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="back" href="../index.html"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 8 H3"/><path d="M7.5 3.5 L3 8 L7.5 12.5"/></svg><span>Anna Khaver</span></a>
+    <ul id="navlinks">
+      <li><a href="#situation">Situation</a></li>
+      <li><a href="#task">Task</a></li>
+      <li><a href="#action">Action</a></li>
+      <li><a href="#result">Result</a></li>
+    </ul>
+  </div>
+</header>
+
+<main>
+  <!-- HERO -->
+  <section class="hero wrap" id="top">
+    <p class="eyebrow"><img class="ink" data-star alt="">Case study · Pipedrive</p>
+    <h1>Referral program redesign</h1>
+    <p class="lede">A referral program designed end to end: from the first invite to a gift card, for the customers who share and the admins who review.</p>
+    <dl class="meta">
+      <div><dt>Company</dt><dd>Pipedrive</dd></div>
+      <div><dt>Role</dt><dd>Product Designer, Growth</dd></div>
+      <div><dt>Worked with</dt><dd>Engineering, legal and support</dd></div>
+      <div><dt>Outcome</dt><dd>−11.4% bug and support tickets</dd></div>
+    </dl>
+    <nav class="steps" aria-label="Case study steps">
+      <a class="step" href="#situation"><span class="l">S</span><span class="t">Situation</span><span class="s">The old program</span></a>
+      <a class="step" href="#task"><span class="l">T</span><span class="t">Task</span><span class="s">What it needed</span></a>
+      <a class="step" href="#action"><span class="l">A</span><span class="t">Action</span><span class="s">How it works</span></a>
+      <a class="step" href="#result"><span class="l">R</span><span class="t">Result</span><span class="s">What changed</span></a>
+    </nav>
+  </section>
+
+  <!-- SITUATION -->
+  <section class="block wrap" id="situation">
+    <div class="sec-title"><img class="ink" data-star alt=""><h2>Situation</h2></div>
+    <div class="sub">
+      <div class="head"><p class="k">The old program</p><h3>Manual for the team, silent for users</h3></div>
+      <div>
+        <div class="cols" style="margin-top:8px">
+          <div class="col"><h4>A spreadsheet process</h4><p>The old process worked, but it was very manual and involved a lot of copying and pasting between sources.</p></div>
+          <div class="col"><h4>No updates for users</h4><p>Users received no updates, so they had to contact support to ask about their claim status.</p></div>
+          <div class="col"><h4>A patched foundation</h4><p>The old referral service kept being patched. The goal of the rewrite was to build the program on a modern foundation instead.</p></div>
+        </div>
+        <div class="stats" style="margin-top:36px">
+          <div class="stat"><span class="num">~30 min</span><p>to validate 10 claims in the old process</p></div>
+        </div>
+      </div>
+    </div>
+    <div class="sub">
+      <div class="head"><p class="k"><span class="tagb">Before</span>The old referral page</p><h3>Information about ongoing referrals was missing</h3></div>
+      <div>
+        <div class="note" role="note">
+          <span class="em" aria-hidden="true">🤔</span>
+          <div><p class="q">Question</p><h4>Current flow</h4>
+            <ul><li>Information about ongoing referral is missing</li><li>Tracking is not transparent</li></ul></div>
+        </div>
+        <div class="shots g2">
+          <figure class="shot full">
+            <button class="zoom" type="button" aria-label="Enlarge screen 1"><img src="../assets/img/referral-before-referrals-tab.webp" alt="The old Referral program page, Referrals and rewards tab: a how-it-works explainer with three steps, a Ready to refer block with copy link and social buttons, and an empty Your sign-ups area"></button>
+            <figcaption><span class="n">1</span><p><b>Referrals and rewards.</b> The page explains how the program works and where to share, but the area for your sign-ups only says you can validate them once a new company has subscribed. Nothing shows what is happening with a referral in progress.</p></figcaption>
+          </figure>
+          <figure class="shot">
+            <button class="zoom" type="button" aria-label="Enlarge screen 2"><img src="../assets/img/referral-before-activity-empty.webp" alt="The old Activity history tab, empty, with the line Here you can track your past activities and an illustration"></button>
+            <figcaption><span class="n">2</span><p><b>Activity history, empty.</b> The one place meant for tracking offered a short line of text and an illustration.</p></figcaption>
+          </figure>
+          <figure class="shot">
+            <button class="zoom" type="button" aria-label="Enlarge screen 3"><img src="../assets/img/referral-before-activity-entry.webp" alt="The old Activity history tab with a single entry: March 5, 2026, Shared a link on facebook"></button>
+            <figcaption><span class="n">3</span><p><b>Activity history, one entry.</b> The only thing recorded was the share itself, “Shared a link on facebook”. What happened after the share stayed invisible, so people had to ask support.</p></figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TASK -->
+  <section class="block wrap wide" id="task">
+    <div class="sec-title"><img class="ink" data-star alt=""><h2>Task</h2></div>
+    <div class="sub">
+      <div class="head"><p class="k">What it needed</p><h3>A program people trust, and a tool to run it</h3></div>
+      <div>
+        <div class="cols" style="margin-top:8px">
+          <div class="col"><h4>For customers</h4><ul>
+            <li>Share by link, social channels or an email invite, after accepting the terms and conditions</li>
+            <li>A Referral Status page with filters</li>
+            <li>Claim the reward directly from the page, with Amazon and PayPal options</li></ul></div>
+          <div class="col"><h4>For the team</h4><ul>
+            <li>A reward review in the Backoffice with fraud flags, related referrals, an audit log and a CSV export for finance</li>
+            <li>Manual enrol and unenrol</li>
+            <li>Multiple programs, each with its own threshold, reward types and currencies</li></ul></div>
+          <div class="col"><h4>Built in</h4><ul>
+            <li>Automatic reward expiry</li>
+            <li>Multi-region support</li>
+            <li>Privacy: data is wiped when a referrer churns, and sensitive fraud data is cleaned up after a retention period</li></ul></div>
+        </div>
+        <p class="line" style="margin-top:28px"><b>Designed with legal and support:</b> fraud-state messaging and consent to the terms and conditions. Today one program runs, the gift card Tell-a-Friend, and the foundation is ready for more.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ACTION -->
+  <section class="block wrap" id="action">
+    <div class="sec-title"><img class="ink" data-star alt=""><h2>Action</h2></div>
+    <div class="sub">
+      <div class="head"><p class="k"><span class="tagb">Mid state</span>First design ideas</p><h3>A first idea: status, analytics and claiming on one page</h3></div>
+      <div>
+        <div class="body"><p style="margin-bottom:26px">An early iteration on the way to the final design. It brought the referral journey onto a single page, so a person could share, follow each invite and claim a reward without leaving it.</p></div>
+        <div class="shots">
+          <figure class="shot">
+            <button class="zoom" type="button" aria-label="Enlarge the first design idea"><img src="../assets/img/referral-mid-state.webp" alt="Early design of the Referral program page: a Your referrals status table with joined via, account created, eligibility and reward status columns, a unique referral links block, referral analytics with emails sent, links opened and people converted, and the how it works steps"></button>
+            <figcaption><span class="n">1</span><p><b>One page for the whole journey.</b> A “Your referrals status” table follows each invite, from how the person joined to the state of the reward, with a Claim reward action. Sharing by email, link or social, simple analytics (emails sent, links opened, people converted) and the how-it-works steps sit on the same page.</p></figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+    <div class="sub">
+      <div class="head"><p class="k"><span class="tagb">Review</span>Design review session</p><h3>Feedback from colleagues shaped the final design</h3></div>
+      <div>
+        <div class="body"><p style="margin-bottom:26px">After the mid-state design, the draft went to a design review session with colleagues. Sticky notes on the board carried their comments, and several of them changed how the page is built.</p></div>
+        <div class="shots">
+          <figure class="shot">
+            <button class="zoom" type="button" data-scale="260%" aria-label="Enlarge the design review board"><img src="../assets/img/referral-design-review-board.webp" alt="The design review board in Figma: two options for the state after a user starts paying but has not invited anyone, the layout for a user who had invited a few people, and a future idea, surrounded by sticky notes with colleagues’ feedback"></button>
+            <figcaption><span class="n">1</span><p><b>The review board.</b> Two options for the state before the first invite, the layout for someone who had invited a few people, and a future idea for when a reward is ready. Names are blurred. Click to enlarge, then scroll to read the notes.</p></figcaption>
+          </figure>
+        </div>
+        <div class="cols two" style="margin-top:36px">
+          <div class="col"><h4>Clearer hierarchy</h4><p>The page looked overwhelming. People asked for a visual hierarchy that shows what matters most, and for the sharing entry point to sit close to the top.</p></div>
+          <div class="col"><h4>Separate the sections</h4><p>One long page was a lot. Several people suggested tabs, and keeping the analytics and the status list close together, since they are connected topics.</p></div>
+          <div class="col"><h4>Lighter status labels</h4><p>Too many gray text pills made the table hard to scan and look disabled. Ideas included icons for how someone joined and check marks for created accounts.</p></div>
+          <div class="col"><h4>Status without the internal process</h4><p>Showing status helps, but users may not need to know about internal steps such as the manual fraud check. Breaking it into steps keeps people from being left without information.</p></div>
+        </div>
+        <p class="line" style="margin-top:30px"><b>What changed:</b> the final design splits the page into two tabs, How it works and Referral status, with sharing at the top.</p>
+      </div>
+    </div>
+    <div class="sub">
+      <div class="head"><p class="k"><span class="tagb">Final</span>The new referral page</p><h3>Two tabs: how it works, and where every referral stands</h3></div>
+      <div>
+        <div class="body"><p style="margin-bottom:26px">The invite field and sharing options stay at the top. Below them, the page adapts to where the person is: a short explainer before the first invite, and a status table once referrals are in motion.</p></div>
+        <div class="shots">
+          <figure class="shot">
+            <button class="zoom" type="button" aria-label="Enlarge screen 1"><img src="../assets/img/referral-final-how-it-works.webp" alt="The new Referral program page, How it works tab, for a user who has not invited anyone yet: an email invite field with share and copy link buttons, and three steps: share your unique link, meet the payment milestone, earn a reward"></button>
+            <figcaption><span class="n">1</span><p><b>How it works.</b> For someone who hasn’t invited anyone yet. Sharing comes first, and three steps explain the program: share your unique link, meet the payment milestone, earn a reward.</p></figcaption>
+          </figure>
+          <figure class="shot">
+            <button class="zoom" type="button" aria-label="Enlarge screen 2"><img src="../assets/img/referral-final-status.webp" alt="The new Referral program page, Referral status tab: a table with email address, invited via, account created, payment milestone and reward status columns, status labels such as created, met, in progress, in review, claimed and ineligible, Claim buttons, and tooltips explaining ineligible states"></button>
+            <figcaption><span class="n">2</span><p><b>Referral status.</b> Once someone has invited people, a table follows each referral step by step: how they were invited, whether the account was created, the payment milestone and the reward status, with a Claim button when the reward is ready. Tooltips explain the states that need it, like ineligible referrals and rewards.</p></figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+    <div class="sub">
+      <div class="head"><p class="k"><span class="tagb">Details</span>Empty states</p><h3>Empty states that point to the next step</h3></div>
+      <div>
+        <div class="body"><p style="margin-bottom:26px">The design goes into the details. An empty state never leaves a dead end: it says why there is nothing to show and offers the next action.</p></div>
+        <div class="shots">
+          <figure class="shot">
+            <button class="zoom" type="button" aria-label="Enlarge screen 1"><img src="../assets/img/referral-empty-no-referrals.webp" alt="The Referral status tab for a user who has not invited anyone yet: an illustration of a bird on a mailbox, the heading No referrals yet, a line inviting connections by email or referral link to start tracking the reward history, and a Copy referral link button"></button>
+            <figcaption><span class="n">1</span><p><b>No referrals yet.</b> For someone who hasn’t invited anyone, the status tab invites them to share by email or link to start tracking their reward history, with a Copy referral link button right there.</p></figcaption>
+          </figure>
+          <figure class="shot">
+            <button class="zoom" type="button" aria-label="Enlarge screen 2"><img src="../assets/img/referral-empty-no-matches.webp" alt="The Referral status tab when the table has no matches: the table headers stay in place, with an illustration of a cat, the heading No matches, a line suggesting to invite connections to track their status, and Copy referral link and Show all users buttons"></button>
+            <figcaption><span class="n">2</span><p><b>No matches.</b> When the table has nothing to show, the headers stay in place and the message offers two ways out: copy the referral link, or show all users.</p></figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+    <div class="sub">
+      <div class="head"><p class="k"><span class="tagb">Added</span>Feedback in the flow</p><h3>Feedback at any time</h3></div>
+      <div>
+        <div class="body"><p style="margin-bottom:26px">We are feedback-driven and data-driven, so feedback became part of the flow. At the bottom of the status page a quick rating asks how easy the program was to use, and a link is always there for anyone who wants to say more.</p></div>
+        <div class="shots">
+          <figure class="shot">
+            <button class="zoom" type="button" aria-label="Enlarge screen 1"><img src="../assets/img/referral-feedback-rating.webp" alt="The Referral status page with a reward status filter, and at the bottom left a short survey asking how easy it was to use the referral program, from difficult to easy, plus a link to share feedback"></button>
+            <figcaption><span class="n">1</span><p><b>A quick rating, and a link that stays.</b> A short question, “How easy was it for you to use the referral program?”, sits at the bottom of the page. Under the table, a link invites people to share feedback whenever they want. The page also gained a filter for the reward status.</p></figcaption>
+          </figure>
+          <figure class="shot">
+            <button class="zoom" type="button" aria-label="Enlarge screen 2"><img src="../assets/img/referral-feedback-form.webp" alt="The Referral program feedback form over the status page: an I want to select field, a details box, a checkbox allowing Pipedrive to contact the person about the feedback, and Cancel and Send feedback buttons"></button>
+            <figcaption><span class="n">2</span><p><b>A short feedback form.</b> People choose what they want to do, add details, and can allow Pipedrive to contact them about it. It is quick enough to use in the moment, and it gives the team a steady stream of input to act on.</p></figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+    <div class="sub">
+      <div class="head"><p class="k">How it works</p><h3>A referral, from invite to gift card</h3></div>
+      <div class="body">
+        <p style="margin-bottom:28px">Meet Uko, who refers, and Magda, who signs up. Every step has a clear status and an email, so nobody has to ask where things stand.</p>
+        <ol class="flow">
+          <li><div><h4>Uko is enrolled</h4><p>He becomes a paying Pipedrive customer and is quietly enrolled in the program. He gets his own promo code, built into his referral link.</p><span class="tag">Email: enrolment</span></div></li>
+          <li><div><h4>Uko shares the link</h4><p>On the referral page he accepts the terms and conditions, then shares by copy link, email invite, LinkedIn, X or Facebook.</p></div></li>
+          <li><div><h4>Magda signs up</h4><p>She signs up with Uko’s promo code and gets a 30-day trial instead of the usual 14. The referral shows in his Referral Status tab, and a few background checks run.</p><span class="tag">Email: referral signed up</span></div></li>
+          <li><div><h4>Magda starts paying</h4><p>Every payment counts. Once her payments reach the program’s threshold, in whatever currency she pays, the referral is qualified and a reward is created for Uko, waiting for review.</p><span class="tag">Email: referral qualified</span></div></li>
+          <li><div><h4>The review</h4><p>The reward lands in the Backoffice queue. A reviewer checks fraud signals, Uko’s other referrals and the audit log, then approves it.</p><span class="tag">Email: reward approved, with the claim deadline</span></div></li>
+          <li><div><h4>Uko claims his reward</h4><p>A Claim button appears on his referral page. He picks Amazon or PayPal, enters his details and submits.</p><span class="tag">Email: reward claimed</span></div></li>
+          <li><div><h4>The gift card is issued</h4><p>Backoffice admins send Amazon gift cards. The finance team sends PayPal rewards from the CSV report. The reward is marked as issued.</p><span class="tag">Email: reward issued</span></div></li>
+        </ol>
+      </div>
+    </div>
+    <div class="sub">
+      <div class="head"><p class="k">Every state has a label</p><h3>When things don’t go to plan</h3></div>
+      <div class="body">
+        <div class="life">
+          <div class="row"><span class="k2">Referral</span><div class="st"><span>Invited</span><i>→</i><span>Signed up</span><i>→</i><span>Paying</span><i>→</i><span>Qualified</span><i>·</i><span class="m">Inactive</span></div></div>
+          <div class="row"><span class="k2">Reward</span><div class="st"><span>In review</span><i>→</i><span>Approved</span><i>→</i><span>Claimed</span><i>→</i><span>Issued</span><i>·</i><span class="m">Invalidated</span><span class="m">Expired</span></div></div>
+        </div>
+        <div class="shots" style="max-width:460px;margin:0 0 40px">
+          <figure class="shot">
+            <button class="zoom" type="button" data-scale="40%" aria-label="Enlarge the reward statuses"><img src="../assets/img/referral-reward-statuses.webp" alt="All reward statuses: Pending, In review with an info icon, a Claim button, Claimed with a tooltip about up to 30 business days for processing, Issued, and Ineligible with a tooltip saying the reward wasn’t eligible for payout"></button>
+            <figcaption><span class="n">1</span><p><b>Reward statuses.</b> Pending, in review, claim, claimed, issued and ineligible each have their own label. Tooltips explain the ones that need it, like “Reward claimed. Please allow up to 30 business days for processing. We’ll email you once it’s issued.”</p></figcaption>
+          </figure>
+        </div>
+        <div class="cols" style="margin-top:8px">
+          <div class="col"><h4>Canceled</h4><p>Magda cancels before her payments reach the threshold. The referral becomes inactive, no reward is ever created, and the page shows a “canceled” pill.</p></div>
+          <div class="col"><h4>Ineligible</h4><p>She cancels after the referral qualified, while the reward waits for review or approval. The reward is invalidated, the page shows an “ineligible” pill, and no email is sent.</p></div>
+          <div class="col"><h4>Expired</h4><p>An approved reward that isn’t claimed within a year expires on its own, shows an “Expired” pill and can no longer be edited in the Backoffice.</p></div>
+        </div>
+        <p class="line" style="margin-top:30px"><b>Under the hood:</b> the program is event-driven, so enrolment, signups, qualification and reward changes show up in near real time, and it runs across regions.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESULT -->
+  <section class="block wrap" id="result">
+    <div class="sec-title"><img class="ink" data-star alt=""><h2>Result</h2></div>
+    <div class="sub">
+      <div class="head"><p class="k">What changed</p><h3>Faster for the team, clearer for users</h3></div>
+      <div class="body">
+        <div class="stats">
+          <div class="stat"><span class="num">~10 min</span><p><b>To validate 10 claims</b><br>down from about 30, a third of the time</p></div>
+          <div class="stat"><span class="num">−11.4%</span><p><b>Bug and support tickets</b><br>in the first months of use</p></div>
+          <div class="stat"><span class="num">12 / day</span><p><b>Invites at launch</b><br>with 108 page visits a day, record levels for the program</p></div>
+        </div>
+        <p>The program fully launched in mid-September 2026.</p>
+      </div>
+    </div>
+    <div class="sub">
+      <div class="head"><p class="k">Feedback from the Backoffice admin</p><h3>Four ways it improved the review workflow</h3></div>
+      <div>
+        <div class="cols two" style="margin-top:8px">
+          <div class="col"><h4>From spreadsheet to plugin</h4><p>Each claim arrives as its own entry with direct links to the relevant accounts, so there is no more hunting for what is needed.</p></div>
+          <div class="col"><h4>Automatic checks and rejections</h4><p>The plugin checks key details on each claim against the set rules. Claims that don’t meet them are rejected automatically, which removes a lot of manual review.</p></div>
+          <div class="col"><h4>Better visibility for users</h4><p>Users can follow every step of the validation and get email notifications, which has reduced support cases about claim status.</p></div>
+          <div class="col"><h4>Time savings</h4><p>Validating 10 claims used to take around 30 minutes. The same batch now takes around 10.</p></div>
+        </div>
+        <div class="body" style="margin-top:34px">
+          <p class="say" style="margin-bottom:0!important">“Overall, the changes have made the process faster, less manual, and less interruptive for me, and the experience is clearer for users too.”</p>
+          <p class="cite">Backoffice admin, Pipedrive</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="wrap foot">
+  <a href="../index.html">Back to portfolio</a>
+  <small>Crafted with simplicity · Anna Khaver 2026</small>
+</footer>
+
+<dialog id="lb" aria-label="Enlarged screen"><button class="x" type="button" aria-label="Close">×</button><img alt="" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="></dialog>
+
+<script>
+(function(){
+  var STARS=['../assets/img/star-1.png','../assets/img/star-2.png'];
+  function $$(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))}
+  $$('[data-star]').forEach(function(el,i){el.src=STARS[i%2]});
+
+  /* dot-to-star markers on list items */
+  var MK='<span class="mk" aria-hidden="true"><i class="dot"></i><i class="star"></i></span>';
+  $$('.col li').forEach(function(li){li.insertAdjacentHTML('afterbegin',MK)});
+
+
+  /* click-to-enlarge screens */
+  var lb=document.getElementById('lb');
+  $$('.zoom').forEach(function(b){b.addEventListener('click',function(){var im=b.querySelector('img'),t=lb.querySelector('img');t.src=im.src;t.alt=im.alt;t.style.width=b.dataset.scale||'';lb.showModal()})});
+  lb.querySelector('.x').addEventListener('click',function(){lb.close()});
+  lb.addEventListener('click',function(e){if(e.target===lb)lb.close()});
+
+  /* load sequence */
+  var seq=$$('.nav .wrap, .eyebrow, .hero h1, .lede, .meta > div, a.step, .sec-title, .sub, .foot > *');
+  seq.forEach(function(el,i){el.style.setProperty('--i',Math.min(i,32));el.classList.add('rv')});
+
+  /* nav highlight */
+  var links=$$('#navlinks a'),secs=links.map(function(a){return document.querySelector(a.getAttribute('href'))});
+  if('IntersectionObserver' in window){
+    var io=new IntersectionObserver(function(es){
+      es.forEach(function(e){if(e.isIntersecting){links.forEach(function(a){a.classList.toggle('on',a.getAttribute('href')==='#'+e.target.id)})}});
+    },{rootMargin:'-45% 0px -50% 0px'});
+    secs.forEach(function(s){io.observe(s)});
+  }
+})();
+</script>
+</body>
+</html>
